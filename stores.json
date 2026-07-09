@@ -1,0 +1,411 @@
+[
+  {
+    "id": "001",
+    "name": "광화문점",
+    "concept": "조선 갑옷을 입은 장군, 광화문(경복궁) 배경",
+    "costume_keywords": "Korean traditional general armor (gabot), red and gold, with Gwanghwamun gate in background",
+    "neuru_action": "appear",
+    "location": "서울 종로구 (광화문 인근)",
+    "floors": [
+      {"f": "B1", "desc": "어린이·교육"},
+      {"f": "1F", "desc": "신간·베스트셀러"},
+      {"f": "2F", "desc": "인문·문학"}
+    ],
+    "hours": "09:30-22:00",
+    "events": ["6월 독서의 달 스탬프 투어", "신간 작가 사인회"],
+    "directions": "5호선 광화문역 4번 출구 직결"
+  },
+  {
+    "id": "002",
+    "name": "은평점",
+    "concept": "남색 두루마기와 갓을 쓴 선비/도령 한복",
+    "costume_keywords": "navy blue Korean hanbok scholar (seonbi) robe with traditional gat hat",
+    "neuru_action": "hat",
+    "location": "서울 은평구",
+    "floors": [
+      {"f": "1F", "desc": "신간·베스트셀러"},
+      {"f": "2F", "desc": "아동·학습"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["전통문화 도서전", "가족 독서 이벤트"],
+    "directions": "3호선·6호선 연신내역 인근"
+  },
+  {
+    "id": "003",
+    "name": "합정점",
+    "concept": "베레모를 쓰고 팔레트와 붓을 든 화가",
+    "costume_keywords": "artist beret, holding a paint palette and brush, creative atelier look",
+    "neuru_action": "appear",
+    "location": "서울 마포구 합정동",
+    "floors": [
+      {"f": "1F", "desc": "신간·예술·디자인"},
+      {"f": "2F", "desc": "문학·인문"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["아트북 페어", "일러스트 원화 전시"],
+    "directions": "2호선·6호선 합정역 연결"
+  },
+  {
+    "id": "004",
+    "name": "건대스타시티점",
+    "concept": "'U' 로고 대학 점퍼와 크로스백을 멘 대학생",
+    "costume_keywords": "varsity college jacket with 'U' letter logo, wearing a crossbody bag, student style",
+    "neuru_action": "appear",
+    "location": "서울 광진구 (건대입구)",
+    "floors": [
+      {"f": "지하", "desc": "전 분야 도서"},
+      {"f": "B1", "desc": "학습·수험서"}
+    ],
+    "hours": "10:30-22:00",
+    "events": ["대학생 추천도서전", "취업·자격증 코너 기획전"],
+    "directions": "2호선·7호선 건대입구역 스타시티몰 연결"
+  },
+  {
+    "id": "005",
+    "name": "동대문점",
+    "concept": "분홍 치마저고리 여성 한복",
+    "costume_keywords": "pink Korean hanbok (jeogori and chima) with floral details",
+    "neuru_action": "hat",
+    "location": "서울 중구 (동대문)",
+    "floors": [
+      {"f": "1F", "desc": "신간·베스트셀러"},
+      {"f": "2F", "desc": "문학·실용"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["한복·전통 도서 기획전", "외국인 관광객 환영 이벤트"],
+    "directions": "1호선·4호선 동대문역 인근"
+  },
+  {
+    "id": "006",
+    "name": "수유점",
+    "concept": "밀짚모자와 지팡이, 등짐을 멘 등산객",
+    "costume_keywords": "straw hat, hiking stick, small backpack, mountain hiker outfit",
+    "neuru_action": "hat",
+    "location": "서울 강북구 수유동",
+    "floors": [
+      {"f": "1F", "desc": "신간·실용·여행"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["북한산 트레킹 도서전", "건강·아웃도어 기획전"],
+    "directions": "4호선 수유역 인근"
+  },
+  {
+    "id": "007",
+    "name": "청량리점",
+    "concept": "역무원 제복과 모자, 여행가방",
+    "costume_keywords": "railway station master uniform and cap, holding a vintage travel suitcase",
+    "neuru_action": "appear",
+    "location": "서울 동대문구 (청량리역)",
+    "floors": [
+      {"f": "1F", "desc": "신간·여행"},
+      {"f": "2F", "desc": "문학·실용"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["기차여행 테마 도서전", "여행 에세이 기획전"],
+    "directions": "1호선·경의중앙선 청량리역 연결"
+  },
+  {
+    "id": "008",
+    "name": "목동점",
+    "concept": "동그란 안경과 쌓아 든 책 (학구적)",
+    "costume_keywords": "round glasses, holding a tall stack of books, studious bookworm look",
+    "neuru_action": "appear",
+    "location": "서울 양천구 목동",
+    "floors": [
+      {"f": "B1", "desc": "학습·참고서"},
+      {"f": "1F", "desc": "신간·아동"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["학년별 추천도서전", "초·중등 학습 기획전"],
+    "directions": "5호선 오목교역 인근"
+  },
+  {
+    "id": "009",
+    "name": "영등포점",
+    "concept": "양손 가득 쇼핑백 (백화점·쇼핑)",
+    "costume_keywords": "holding shopping bags in both hands, cheerful shopping look",
+    "neuru_action": "appear",
+    "location": "서울 영등포구 (영등포역)",
+    "floors": [
+      {"f": "지하", "desc": "전 분야 도서"}
+    ],
+    "hours": "10:30-22:00",
+    "events": ["라이프스타일 도서전", "굿즈·문구 기획전"],
+    "directions": "1호선 영등포역 백화점 연결"
+  },
+  {
+    "id": "010",
+    "name": "가든파이브점",
+    "concept": "작은 화분/식물을 안은 모습 (가든)",
+    "costume_keywords": "holding a small potted plant, gardening apron, fresh green garden theme",
+    "neuru_action": "appear",
+    "location": "서울 송파구 (가든파이브)",
+    "floors": [
+      {"f": "1F", "desc": "신간·실용·라이프"}
+    ],
+    "hours": "10:30-22:00",
+    "events": ["가드닝·식물 도서전", "홈 인테리어 기획전"],
+    "directions": "8호선 장지역 가든파이브 연결"
+  },
+  {
+    "id": "011",
+    "name": "강남점",
+    "concept": "헤드폰·코트·서류가방의 세련된 직장인",
+    "costume_keywords": "stylish trench coat, headphones, business briefcase, urban professional look",
+    "neuru_action": "hat",
+    "location": "서울 강남구 (강남역)",
+    "floors": [
+      {"f": "B1", "desc": "전 분야 도서"},
+      {"f": "B2", "desc": "외서·전문서"}
+    ],
+    "hours": "10:30-22:00",
+    "events": ["자기계발·경제경영 도서전", "신간 베스트 기획전"],
+    "directions": "신분당선·2호선 강남역 직결"
+  },
+  {
+    "id": "012",
+    "name": "원그로브점",
+    "concept": "노트북과 커피를 든 비즈니스 캐주얼",
+    "costume_keywords": "business casual, holding a laptop and a coffee cup, modern office worker",
+    "neuru_action": "appear",
+    "location": "서울 (원그로브 오피스타운)",
+    "floors": [
+      {"f": "1F", "desc": "신간·경제경영"}
+    ],
+    "hours": "10:00-21:00",
+    "events": ["직장인 점심 독서 이벤트", "경제경영 기획전"],
+    "directions": "원그로브 빌딩 내 위치"
+  },
+  {
+    "id": "013",
+    "name": "잠실점",
+    "concept": "곰돌이 머리띠와 하트 풍선 (놀이공원)",
+    "costume_keywords": "bear-ear headband, holding a heart-shaped balloon, theme-park festive mood",
+    "neuru_action": "appear",
+    "location": "서울 송파구 (잠실)",
+    "floors": [
+      {"f": "지하", "desc": "전 분야 도서"}
+    ],
+    "hours": "10:30-22:00",
+    "events": ["가족 나들이 도서전", "아동·그림책 기획전"],
+    "directions": "2호선·8호선 잠실역 롯데몰 연결"
+  },
+  {
+    "id": "014",
+    "name": "광교점",
+    "concept": "밀짚모자와 피크닉 바구니 (호수공원 나들이)",
+    "costume_keywords": "straw sun hat, carrying a picnic basket, lakeside picnic theme",
+    "neuru_action": "appear",
+    "location": "경기 수원시 (광교호수공원)",
+    "floors": [
+      {"f": "1F", "desc": "신간·라이프"},
+      {"f": "2F", "desc": "아동·문학"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["피크닉 독서 이벤트", "에세이·여행 기획전"],
+    "directions": "신분당선 광교중앙역 인근"
+  },
+  {
+    "id": "015",
+    "name": "판교점",
+    "concept": "노트북과 사원증을 맨 IT 개발자",
+    "costume_keywords": "tech developer style, laptop and lanyard ID badge, IT valley vibe",
+    "neuru_action": "appear",
+    "location": "경기 성남시 (판교 테크노밸리)",
+    "floors": [
+      {"f": "1F", "desc": "신간·IT·경제경영"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["IT·개발 도서전", "스타트업·트렌드 기획전"],
+    "directions": "신분당선 판교역 인근"
+  },
+  {
+    "id": "016",
+    "name": "평촌점",
+    "concept": "고글과 인라인스케이트 (스포츠·레저)",
+    "costume_keywords": "sport goggles, wearing inline skates, energetic sporty look",
+    "neuru_action": "hat",
+    "location": "경기 안양시 (평촌)",
+    "floors": [
+      {"f": "B1", "desc": "전 분야 도서"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["스포츠·건강 도서전", "취미·레저 기획전"],
+    "directions": "4호선 범계역 인근"
+  },
+  {
+    "id": "017",
+    "name": "송도점",
+    "concept": "패들(노)을 든 수상스포츠 차림 (해양)",
+    "costume_keywords": "holding a kayak paddle, life vest, marine water-sports theme by the sea",
+    "neuru_action": "appear",
+    "location": "인천 연수구 송도",
+    "floors": [
+      {"f": "1F", "desc": "신간·라이프"},
+      {"f": "2F", "desc": "아동·문학"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["바다·여행 도서전", "여름 시즌 기획전"],
+    "directions": "인천1호선 센트럴파크역 인근"
+  },
+  {
+    "id": "018",
+    "name": "인천점",
+    "concept": "파일럿 제복과 모자, 비행기 (공항)",
+    "costume_keywords": "airline pilot uniform and cap, a small airplane nearby, airport theme",
+    "neuru_action": "appear",
+    "location": "인천 (인천공항 인근)",
+    "floors": [
+      {"f": "1F", "desc": "신간·여행·외서"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["세계여행 도서전", "외국어·여행 기획전"],
+    "directions": "공항철도 인천공항 연결"
+  },
+  {
+    "id": "019",
+    "name": "일산점",
+    "concept": "꽃 화관과 꽃다발 (호수공원 꽃축제)",
+    "costume_keywords": "flower crown, holding a bouquet of flowers, spring flower festival theme",
+    "neuru_action": "appear",
+    "location": "경기 고양시 일산 (호수공원)",
+    "floors": [
+      {"f": "1F", "desc": "신간·라이프"},
+      {"f": "2F", "desc": "아동·문학"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["꽃축제 연계 도서전", "에세이·힐링 기획전"],
+    "directions": "3호선 정발산역 인근"
+  },
+  {
+    "id": "020",
+    "name": "세종점",
+    "concept": "곤룡포·익선관을 갖추고 책을 든 임금 (세종대왕)",
+    "costume_keywords": "royal king's red gonryongpo robe and ikseongwan crown, holding a book, King Sejong theme",
+    "neuru_action": "hat",
+    "location": "세종특별자치시",
+    "floors": [
+      {"f": "1F", "desc": "신간·인문"},
+      {"f": "2F", "desc": "아동·학습"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["한글·세종대왕 도서전", "인문 기획전"],
+    "directions": "세종시 중심상업지구 위치"
+  },
+  {
+    "id": "021",
+    "name": "천안점",
+    "concept": "호두과자 모양의 갈색 의상 (천안 호두과자)",
+    "costume_keywords": "dressed as a brown walnut cookie (hodu-gwaja), Cheonan local specialty theme",
+    "neuru_action": "appear",
+    "location": "충남 천안시",
+    "floors": [
+      {"f": "1F", "desc": "신간·실용"},
+      {"f": "2F", "desc": "아동·문학"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["지역 특산 연계 이벤트", "가족 독서전"],
+    "directions": "1호선·장항선 천안역 인근"
+  },
+  {
+    "id": "022",
+    "name": "대전점",
+    "concept": "요리사 모자와 딸기 케이크 (빵의 도시)",
+    "costume_keywords": "chef hat, holding a strawberry cake, bakery city theme",
+    "neuru_action": "appear",
+    "location": "대전광역시",
+    "floors": [
+      {"f": "B1", "desc": "전 분야 도서"}
+    ],
+    "hours": "10:30-22:00",
+    "events": ["요리·베이킹 도서전", "지역 빵집 콜라보 이벤트"],
+    "directions": "1호선 대전시청역 인근"
+  },
+  {
+    "id": "023",
+    "name": "대구점",
+    "concept": "중절모·돋보기·지도를 든 탐정 (추리·탐험)",
+    "costume_keywords": "detective fedora hat, magnifying glass, holding an old map, mystery explorer look",
+    "neuru_action": "appear",
+    "location": "대구광역시",
+    "floors": [
+      {"f": "B1", "desc": "전 분야 도서"},
+      {"f": "B2", "desc": "학습·전문서"}
+    ],
+    "hours": "10:30-22:00",
+    "events": ["추리·미스터리 도서전", "지역 탐방 기획전"],
+    "directions": "2호선 반월당역 인근"
+  },
+  {
+    "id": "024",
+    "name": "칠곡점",
+    "concept": "헬멧과 바람개비 (자전거·낙동강)",
+    "costume_keywords": "bicycle helmet, holding a pinwheel, riverside cycling theme",
+    "neuru_action": "hat",
+    "location": "대구 북구 칠곡",
+    "floors": [
+      {"f": "1F", "desc": "신간·아동"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["가족 자전거 나들이 이벤트", "아동·그림책 기획전"],
+    "directions": "칠곡 중심상가 위치"
+  },
+  {
+    "id": "025",
+    "name": "부산점",
+    "concept": "선장 모자와 망원경 (항구·바다)",
+    "costume_keywords": "sea captain hat, holding a telescope, harbor and ocean theme",
+    "neuru_action": "appear",
+    "location": "부산광역시",
+    "floors": [
+      {"f": "지하", "desc": "전 분야 도서"}
+    ],
+    "hours": "10:30-22:00",
+    "events": ["바다·여행 도서전", "부산 로컬 기획전"],
+    "directions": "1호선 부산역 인근"
+  },
+  {
+    "id": "026",
+    "name": "센텀시티점",
+    "concept": "영화 클래퍼보드 (영화의전당·영화제)",
+    "costume_keywords": "holding a film clapperboard, movie director style, film festival theme",
+    "neuru_action": "appear",
+    "location": "부산 해운대구 (센텀시티)",
+    "floors": [
+      {"f": "지하", "desc": "전 분야 도서"}
+    ],
+    "hours": "10:30-22:00",
+    "events": ["영화·영상 도서전", "영화제 연계 기획전"],
+    "directions": "2호선 센텀시티역 백화점 연결"
+  },
+  {
+    "id": "027",
+    "name": "울산점",
+    "concept": "안전모와 렌치 (산업·공업도시)",
+    "costume_keywords": "yellow safety helmet, holding a wrench, industrial engineer theme",
+    "neuru_action": "hat",
+    "location": "울산광역시",
+    "floors": [
+      {"f": "1F", "desc": "신간·실용"},
+      {"f": "2F", "desc": "아동·학습"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["과학·공학 도서전", "직장인 기획전"],
+    "directions": "울산 중심상업지구 위치"
+  },
+  {
+    "id": "028",
+    "name": "창원점",
+    "concept": "분홍 꽃모자와 꽃바구니 자전거 (벚꽃·진해 군항제)",
+    "costume_keywords": "pink flower bonnet, a bicycle with a flower basket, cherry blossom festival theme",
+    "neuru_action": "appear",
+    "location": "경남 창원시",
+    "floors": [
+      {"f": "1F", "desc": "신간·라이프"},
+      {"f": "2F", "desc": "아동·문학"}
+    ],
+    "hours": "10:00-22:00",
+    "events": ["벚꽃축제 연계 도서전", "봄 시즌 에세이 기획전"],
+    "directions": "창원 중심상가 위치"
+  }
+]
