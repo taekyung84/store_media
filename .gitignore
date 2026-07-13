@@ -39,6 +39,8 @@ usage_logs.json
 *.avi
 *.mov
 server_test.log
+showcase.html
+누끼_컨택트시트.png
 
 # Remotion public cache dirs inside python path if created, but we also prevent audio/animated
 public/audio/
