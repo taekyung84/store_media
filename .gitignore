@@ -46,3 +46,11 @@ showcase.html
 public/audio/
 public/animated/
 public/characters/
+
+# my-video Remotion 프로젝트 (레포 내부)
+my-video/node_modules/
+my-video/out/
+my-video/public/audio/
+my-video/public/animated/
+my-video/public/characters/
+my-video/.DS_Store

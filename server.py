@@ -15,11 +15,11 @@ import videolib
 import veo_animate
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
-PROJ = os.path.join(ROOT, "my-video")
+PROJ = os.path.join(HERE, "my-video")   # Railway: 레포 내부
 PUB = os.path.join(PROJ, "public")
 OUT = os.path.join(PROJ, "out")
-PORT = 8765
+# Railway는 PORT 환경변수를 자동으로 주입합니다.
+PORT = int(os.environ.get("PORT", 8765))
 LOG_FILE = os.path.join(HERE, "usage_logs.json")
 
 
@@ -1381,13 +1381,24 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     ThreadingHTTPServer.allow_reuse_address = True
+    is_cloud = bool(os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PROJECT_ID"))
+    # 클라우드: 0.0.0.0으로 바인딩 / 로컬: 127.0.0.1
+    host = "0.0.0.0" if is_cloud else "127.0.0.1"
     srv = None
-    for port in range(PORT, PORT + 10):
+    if is_cloud:
+        # Railway: 포트 고정 (환경변수 PORT)
         try:
-            srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-            break
-        except OSError:
-            continue
+            srv = ThreadingHTTPServer((host, PORT), Handler)
+        except OSError as e:
+            print(f"❌ 포트 {PORT} 바인딩 실패: {e}")
+            return
+    else:
+        for port in range(PORT, PORT + 10):
+            try:
+                srv = ThreadingHTTPServer((host, port), Handler)
+                break
+            except OSError:
+                continue
     if srv is None:
         print(f"❌ 사용 가능한 포트를 찾지 못했습니다 ({PORT}~{PORT+9}).")
         print("   이미 실행 중인 웹앱이 있는지 확인하거나, 기존 터미널 창을 닫고 다시 시도하세요.")
@@ -1401,10 +1412,12 @@ def main():
         print("⚠️  npx(Node.js)를 찾을 수 없습니다. 영상 만들기가 작동하지 않습니다.")
         print("   Homebrew: brew install node")
         print("   또는 https://nodejs.org 에서 설치해 주세요.\n")
-    if port != PORT:
+    if not is_cloud and port != PORT:
         print(f"※ 기본 포트 {PORT}가 사용 중이어서 {port}로 열었습니다.")
         print(f"  (이전에 띄운 웹앱이 아직 켜져 있을 수 있어요 → http://localhost:{PORT})\n")
-    threading.Timer(1.0, lambda: webbrowser.open(url)).start()
+    # 로컬에서만 브라우저 자동 실행 (클라우드 서버에서는 생략)
+    if not is_cloud:
+        threading.Timer(1.0, lambda: webbrowser.open(url)).start()
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

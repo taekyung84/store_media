@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# macOS
+.DS_Store
+
+# 개발 도구
+.agents/
+.bin/
+tools/
+
+# 불필요한 대용량 파일
+my-video/node_modules/
+my-video/out/
+my-video/public/audio/
+my-video/public/animated/
+
+# 로그 및 임시 파일
+*.log
+usage_logs.json
+build/
+
+# 환경 변수 (Railway 대시보드에서 설정)
+.env
