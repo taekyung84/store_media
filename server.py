@@ -310,18 +310,42 @@ def render_video(p):
             "Homebrew: brew install node\n"
             "또는 https://nodejs.org 에서 설치해 주세요.")
     try:
-        subprocess.run([NPX, "remotion", "render", "WebVideo", os.path.join("out", outfile),
-                        f"--props={propsf}", "--concurrency=1", "--log=error"],
-                       cwd=PROJ, check=True, capture_output=True, text=True,
-                       timeout=300)
+        # Node 힙 메모리를 192MB로 명시적으로 제한하여 512MB RAM의 OOM 위험 차단
+        node_bin = shutil.which("node") or "node"
+        remotion_cli = os.path.join(PROJ, "node_modules", "remotion", "dist", "cli", "index.js")
+        
+        if os.path.exists(remotion_cli):
+            cmd = [
+                node_bin,
+                "--max-old-space-size=192",
+                remotion_cli,
+                "render",
+                "WebVideo",
+                os.path.join("out", outfile),
+                f"--props={propsf}",
+                "--concurrency=1",
+                "--log=error"
+            ]
+        else:
+            cmd = [
+                NPX,
+                "remotion",
+                "render",
+                "WebVideo",
+                os.path.join("out", outfile),
+                f"--props={propsf}",
+                "--concurrency=1",
+                "--log=error"
+            ]
+
+        subprocess.run(cmd, cwd=PROJ, check=True, capture_output=True, text=True, timeout=300)
     except subprocess.TimeoutExpired:
         raise RuntimeError("렌더 시간 초과 (5분). 다시 시도해 주세요.")
     except subprocess.CalledProcessError as e:
         raise RuntimeError("렌더 실패:\n" + (e.stderr or e.stdout or str(e))[-1500:])
     except FileNotFoundError:
         raise RuntimeError(
-            f"npx를 실행할 수 없습니다: {NPX}\n"
-            "Node.js가 올바르게 설치되어 있는지 확인해 주세요.")
+            f"렌더러를 실행할 수 없습니다. Node.js 또는 npx가 정상적으로 설치되었는지 확인해 주세요.")
     finally:
         if os.path.exists(propsf):
             os.remove(propsf)
