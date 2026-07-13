@@ -15,8 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ── Remotion은 Chromium 경로를 환경변수로 지정 ───────────────────────
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-# Render/Railway 무료 플랜 메모리 극단적 절약 플래그 지정 (안정적인 리눅스 플래그 위주)
-ENV REMOTION_CHROME_FLAGS="--disable-dev-shm-usage --no-sandbox --disable-gpu --no-zygote --disable-extensions --disable-setuid-sandbox --disable-dev-tools"
+# Render/Railway 무료 플랜 메모리 극단적 절약 플래그 지정 (안정적인 리눅스 플래그 위주 + 크롬 메모리 한도 지정)
+ENV REMOTION_CHROME_FLAGS="--disable-dev-shm-usage --no-sandbox --disable-gpu --no-zygote --disable-extensions --disable-setuid-sandbox --disable-dev-tools --js-flags=--max-old-space-size=128 --renderer-process-limit=1"
+
 
 
 # ── 작업 디렉토리 설정 ────────────────────────────────────────────────
