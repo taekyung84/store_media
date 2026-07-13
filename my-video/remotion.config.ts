@@ -15,7 +15,7 @@ if (existsSync(wrapperPath)) {
 Config.setChromiumDisableWebSecurity(true);
 
 // ── Render 512MB RAM 극약 처방: 크롬 탭당 JS 힙 메모리를 128MB로 제한 ──
-Config.setChromeFlags([
+Config.setChromiumFlags([
   "--js-flags=--max-old-space-size=128",
   "--renderer-process-limit=1",
   "--disable-dev-shm-usage",
