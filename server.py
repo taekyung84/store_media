@@ -1381,7 +1381,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     ThreadingHTTPServer.allow_reuse_address = True
-    is_cloud = bool(os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PROJECT_ID"))
+    is_cloud = bool(os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PROJECT_ID") or os.environ.get("RENDER"))
     # 클라우드: 0.0.0.0으로 바인딩 / 로컬: 127.0.0.1
     host = "0.0.0.0" if is_cloud else "127.0.0.1"
     srv = None
