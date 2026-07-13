@@ -13,8 +13,8 @@ export const RemotionRoot: React.FC = () => {
           component={VideoComp}
           durationInFrames={Math.ceil(video.totalSec * FPS)}
           fps={FPS}
-          width={1080}
-          height={1920}
+          width={720}
+          height={1280}
           defaultProps={{ video }}
         />
       ))}
@@ -25,8 +25,8 @@ export const RemotionRoot: React.FC = () => {
         component={VideoComp}
         durationInFrames={Math.ceil(VIDEOS[0].totalSec * FPS)}
         fps={FPS}
-        width={1080}
-        height={1920}
+        width={720}
+        height={1280}
         defaultProps={{ video: VIDEOS[0] }}
         calculateMetadata={({ props }) => ({
           durationInFrames: Math.ceil(props.video.totalSec * FPS),

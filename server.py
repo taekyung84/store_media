@@ -310,14 +310,14 @@ def render_video(p):
             "Homebrew: brew install node\n"
             "또는 https://nodejs.org 에서 설치해 주세요.")
     try:
-        # Node 힙 메모리를 192MB로 명시적으로 제한하여 512MB RAM의 OOM 위험 차단
+        # Node 힙 메모리를 128MB로 대폭 축소하여 OOM 방어 강화
         node_bin = shutil.which("node") or "node"
         remotion_cli = os.path.join(PROJ, "node_modules", "remotion", "dist", "cli", "index.js")
         
         if os.path.exists(remotion_cli):
             cmd = [
                 node_bin,
-                "--max-old-space-size=192",
+                "--max-old-space-size=128",
                 remotion_cli,
                 "render",
                 "WebVideo",
