@@ -268,21 +268,22 @@ const CaptionBar: React.FC<{ text: string }> = ({ text }) => {
     <div
       style={{
         position: "absolute",
-        left: 60,
-        right: 60,
-        bottom: 230,
-        background: "rgba(255,255,255,0.94)",
-        borderRadius: 36,
-        padding: "40px 48px",
+        left: 50,
+        right: 50,
+        bottom: 110,
+        background: "rgba(255,255,255,0.95)",
+        borderRadius: 28,
+        padding: "28px 40px",
         textAlign: "center",
         fontFamily,
-        fontSize: 56,
+        fontSize: 45, // 기존 56px 대비 20% 축소
         fontWeight: 700,
         lineHeight: 1.35,
         color: DARK,
         opacity: appear,
         transform: `translateY(${(1 - appear) * 20}px)`,
-        boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+        boxShadow: "0 12px 32px rgba(0,0,0,0.14)",
+        wordBreak: "keep-all",
       }}
     >
       {text}
@@ -314,34 +315,53 @@ const Outro: React.FC<{ video: VideoX }> = ({ video }) => {
   const frame = useCurrentFrame();
   const fade = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
   const info = video.info ?? [];
+  const titleText = video.title ?? "";
+
+  // 타이틀 길이에 따른 동적 폰트 크기 조절 (긴 타이틀 지원)
+  let titleFontSize = 72;
+  if (titleText.length > 18) {
+    titleFontSize = 50;
+  } else if (titleText.length > 11) {
+    titleFontSize = 60;
+  }
+
   return (
     <AbsoluteFill style={{ fontFamily, alignItems: "center", opacity: fade }}>
-      <div style={{ marginTop: 410, textAlign: "center", width: 920 }}>
-        <div style={{ fontSize: 76, fontWeight: 800, color: WHITE, lineHeight: 1.22 }}>{video.title}</div>
+      <div style={{ marginTop: 430, textAlign: "center", width: 940, padding: "0 20px" }}>
+        <div
+          style={{
+            fontSize: titleFontSize,
+            fontWeight: 800,
+            color: WHITE,
+            lineHeight: 1.25,
+            wordBreak: "keep-all",
+            textShadow: "0 4px 12px rgba(0,0,0,0.12)",
+          }}
+        >
+          {titleText}
+        </div>
         {info.length > 0 && (
           <div
             style={{
-              marginTop: 40,
-              background: "rgba(255,255,255,0.9)",
+              marginTop: 48,
+              background: "rgba(255,255,255,0.92)",
               borderRadius: 28,
-              padding: "30px 40px",
+              padding: "32px 44px",
               display: "inline-block",
               minWidth: 620,
+              boxShadow: "0 10px 28px rgba(0,0,0,0.1)",
             }}
           >
             {info.map((it: Info, i: number) => (
-              <div key={i} style={{ fontSize: 42, color: DARK, margin: "10px 0" }}>
+              <div key={i} style={{ fontSize: 42, color: DARK, margin: "12px 0" }}>
                 <span style={{ fontWeight: 800, color: ORANGE }}>{it.label}</span>
-                <span style={{ marginLeft: 14 }}>{it.value}</span>
+                <span style={{ marginLeft: 16 }}>{it.value}</span>
               </div>
             ))}
           </div>
         )}
-        <div style={{ fontSize: 46, color: DARK, fontWeight: 700, marginTop: 48 }}>
-          느루와 함께, 또 만나요!
-        </div>
       </div>
-      <Character src={video.char} size={400} baseTop={1180} motion="기본" animatedSrc={video.animatedChar} />
+      <Character src={video.char} size={420} baseTop={1150} motion="기본" animatedSrc={video.animatedChar} />
     </AbsoluteFill>
   );
 };
@@ -359,13 +379,13 @@ const Body: React.FC<{ video: VideoX }> = ({ video }) => (
       <ScenePlayer
         scenes={video.animatedScenes}
         captions={video.captions}
-        size={540}
-        baseTop={440}
+        size={520}
+        baseTop={420}
         fallbackSrc={video.char}
         fallbackMotion={video.motion}
       />
     ) : (
-      <Character src={video.char} size={540} baseTop={440} motion={video.motion} animatedSrc={video.animatedChar} />
+      <Character src={video.char} size={520} baseTop={420} motion={video.motion} animatedSrc={video.animatedChar} />
     )}
   </AbsoluteFill>
 );
