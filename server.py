@@ -1144,7 +1144,7 @@ footer {
           </div>
           <span class="desc">
             • <strong>체크 시</strong>: 대본 각 줄마다 개별 AI 영상 클립을 생성합니다. 장면 간 자동 크로스페이드로 매끄럽게 연결됩니다.<br>
-            • <strong>프롬프트 직접 지정</strong>: 대본 줄 끝에 <code>[veo: 영어 프롬프트]</code> 태그를 추가하면 해당 장면의 영상이 지정된 프롬프트로 생성됩니다.<br>
+            • <strong>프롬프트 직접 지정</strong>: 대본 각 줄 끝에 <code>[veo: 영어 프롬프트]</code> 태그를 추가하면 해당 장면의 영상이 지정된 프롬프트로 생성됩니다.<br>
             &nbsp;&nbsp;예: <code>찬찬이가 인사해요 [veo: The cute character waves hello cheerfully while holding a book]</code><br>
             • <strong>체크 해제 시</strong>: 선택한 프리셋 동작으로 100% 무료 렌더링됩니다. <span class="badge badge--free">무료</span><br>
             • <em>동일 조건 영상은 스마트 캐시가 적용되어 재발행 시 추가 생성비 없이 10초 내 완료됩니다.</em>
