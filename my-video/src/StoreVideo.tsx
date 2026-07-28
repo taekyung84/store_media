@@ -344,13 +344,14 @@ const Outro: React.FC<{ video: VideoX }> = ({ video }) => {
   const info = video.info ?? [];
   const rawTitle = video.title ?? "";
 
-  // 2줄 줄바꿈 적용 및 큰 폰트 크기 지정
+  // 2줄 줄바꿈 유지 & 폰트 크기 20% 축소 (70px / 62px)
   const twoLinesTitle = formatTwoLinesTitle(rawTitle);
-  const titleFontSize = twoLinesTitle.length > 24 ? 78 : 88;
+  const titleFontSize = twoLinesTitle.length > 24 ? 62 : 70;
 
   return (
     <AbsoluteFill style={{ fontFamily, alignItems: "center", opacity: fade }}>
-      <div style={{ marginTop: 410, textAlign: "center", width: 940, padding: "0 20px" }}>
+      {/* 상단으로 위치 이동 (marginTop: 280px) */}
+      <div style={{ marginTop: 280, textAlign: "center", width: 940, padding: "0 20px" }}>
         <div
           style={{
             fontSize: titleFontSize,
@@ -367,17 +368,17 @@ const Outro: React.FC<{ video: VideoX }> = ({ video }) => {
         {info.length > 0 && (
           <div
             style={{
-              marginTop: 44,
+              marginTop: 36,
               background: "rgba(255,255,255,0.92)",
               borderRadius: 28,
-              padding: "32px 44px",
+              padding: "28px 40px",
               display: "inline-block",
               minWidth: 620,
               boxShadow: "0 10px 28px rgba(0,0,0,0.1)",
             }}
           >
             {info.map((it: Info, i: number) => (
-              <div key={i} style={{ fontSize: 42, color: DARK, margin: "12px 0" }}>
+              <div key={i} style={{ fontSize: 40, color: DARK, margin: "10px 0" }}>
                 <span style={{ fontWeight: 800, color: ORANGE }}>{it.label}</span>
                 <span style={{ marginLeft: 16 }}>{it.value}</span>
               </div>
@@ -385,7 +386,8 @@ const Outro: React.FC<{ video: VideoX }> = ({ video }) => {
           </div>
         )}
       </div>
-      <Character src={video.char} size={420} baseTop={1150} motion="기본" animatedSrc={video.animatedChar} />
+      {/* 인트로와 동일하게 하단에 캐릭터 무빙(인사, entrance, baseTop: 880) 적용 */}
+      <Character src={video.char} size={460} baseTop={880} motion="인사" entrance animatedSrc={video.animatedChar} />
     </AbsoluteFill>
   );
 };

@@ -1365,7 +1365,7 @@ function gen(){
             clearInterval(dots);clearInterval(pollTimer);btn.disabled=false;
             st.textContent='영상 제작 완료 ('+statusRes.totalSec+'초, 음성: '+statusRes.engine+', 렌더 '+statusRes.elapsed+'초)';
             var u='/out/'+encodeURIComponent(statusRes.file)+'?t='+Date.now();
-            document.getElementById('result').innerHTML='<video src="'+u+'" controls autoplay muted></video>';
+            document.getElementById('result').innerHTML='<video src="'+u+'" controls autoplay></video>';
             
             // 다운로드 버튼 생성 (기존 placeholder 외부 디바이스 쉘 아래에 깔끔하게 배치)
             var existingDl = document.getElementById('dl-link');
