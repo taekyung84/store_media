@@ -76,6 +76,28 @@ def _find_npx():
 
 NPX = _find_npx()
 
+
+def _ensure_node_modules():
+    """my-video/node_modules가 없으면 자동으로 npm install을 실행합니다.
+    로컬 개발 환경 또는 렌더 환경에서 deps가 누락된 경우를 자동 복구합니다."""
+    nm = os.path.join(PROJ, "node_modules")
+    if os.path.isdir(nm):
+        return  # 이미 설치된 경우 패스
+    node_bin = shutil.which("node") or "node"
+    npm_bin = shutil.which("npm") or "npm"
+    print("  📦 node_modules 없음 → npm install 자동 실행 중... (최초 1회)")
+    try:
+        result = subprocess.run(
+            [npm_bin, "install", "--prefer-offline"],
+            cwd=PROJ, capture_output=True, text=True, timeout=300
+        )
+        if result.returncode == 0:
+            print("  ✅ npm install 완료")
+        else:
+            print(f"  ⚠️ npm install 실패:\n{result.stderr[-500:]}")
+    except Exception as e:
+        print(f"  ⚠️ npm install 실행 오류: {e}")
+
 # remotion 렌더에 필수적인 ffmpeg가 system PATH에 없을 때를 위해,
 # videolib.FFMPEG(imageio-ffmpeg 패키지의 바이너리)를 로컬 .bin/ffmpeg로 심링크/복사하고 PATH에 추가합니다.
 def _setup_ffmpeg():
@@ -314,15 +336,39 @@ def render_video(p):
             "Homebrew: brew install node\n"
             "또는 https://nodejs.org 에서 설치해 주세요.")
     try:
-        # Node 힙 메모리를 128MB로 대폭 축소하여 OOM 방어 강화
+        # node_modules 자동 복구 (최초 실행 시 누락 방지)
+        _ensure_node_modules()
+
+        # Remotion CLI 경로를 명시적으로 탐색 (npx remotion은 npm 12+에서 실패 가능)
         node_bin = shutil.which("node") or "node"
-        remotion_cli = os.path.join(PROJ, "node_modules", "remotion", "dist", "cli", "index.js")
-        
+
+        # 1순위: @remotion/cli/remotion-cli.js (node_modules/.bin/remotion의 실제 타겟)
+        remotion_cli = os.path.join(PROJ, "node_modules", "@remotion", "cli", "remotion-cli.js")
+        # 2순위: node_modules/remotion/dist/cli/index.js (구버전 remotion)
+        remotion_cli_legacy = os.path.join(PROJ, "node_modules", "remotion", "dist", "cli", "index.js")
+        # 3순위: node_modules/.bin/remotion (npm symlink - node 스크립트이므로 node로 직접 실행)
+        remotion_bin = os.path.join(PROJ, "node_modules", ".bin", "remotion")
+
         if os.path.exists(remotion_cli):
+            cli_path = remotion_cli
+        elif os.path.exists(remotion_cli_legacy):
+            cli_path = remotion_cli_legacy
+        elif os.path.isfile(remotion_bin):
+            cli_path = remotion_bin
+        elif NPX:
+            cli_path = None  # npx 폴백
+        else:
+            raise RuntimeError(
+                "Remotion CLI를 찾을 수 없습니다.\n"
+                f"{PROJ}/node_modules 에 remotion 패키지가 설치되어 있어야 합니다.\n"
+                "my-video 디렉토리에서 npm install 을 실행해 주세요."
+            )
+
+        if cli_path:
             cmd = [
                 node_bin,
                 "--max-old-space-size=128",
-                remotion_cli,
+                cli_path,
                 "render",
                 "WebVideo",
                 os.path.join("out", outfile),
@@ -331,8 +377,10 @@ def render_video(p):
                 "--log=error"
             ]
         else:
+            # 최후 폴백: npx --yes remotion (npm 12+ 호환: --yes 플래그로 실행 허용)
             cmd = [
                 NPX,
+                "--yes",
                 "remotion",
                 "render",
                 "WebVideo",
