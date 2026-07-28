@@ -1122,7 +1122,7 @@ footer {
 <!-- Hero Title Banner -->
 <section class="hero-banner">
   <h1 class="hero-title">점포 안내 영상 자동 생성 시스템</h1>
-  <p class="hero-desc">점포와 안내 유형을 선택하면 고품질 TTS 음성 및 캐릭터 영상이 10초 만에 완성됩니다.</p>
+  <p class="hero-desc">점포와 안내 유형을 선택하면 고품질 TTS 음성 및 캐릭터 영상이 30초 안에 완성됩니다.</p>
 </section>
 
 <!-- Main Layout -->
