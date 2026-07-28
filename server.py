@@ -367,7 +367,7 @@ def render_video(p):
         if cli_path:
             cmd = [
                 node_bin,
-                "--max-old-space-size=128",
+                "--max-old-space-size=2048",
                 cli_path,
                 "render",
                 "WebVideo",
