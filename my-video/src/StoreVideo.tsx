@@ -291,6 +291,32 @@ const CaptionBar: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
+// 타이틀을 자연스러운 2줄로 분할하는 헬퍼 함수
+function formatTwoLinesTitle(title: string): string {
+  if (!title) return "";
+  if (title.includes("\n")) return title;
+  const words = title.split(" ");
+  if (words.length <= 1) return title;
+
+  const mid = Math.floor(title.length / 2);
+  let bestIdx = 0;
+  let minDiff = 999;
+  let curLen = 0;
+
+  for (let i = 0; i < words.length - 1; i++) {
+    curLen += words[i].length + (i > 0 ? 1 : 0);
+    const diff = Math.abs(curLen - mid);
+    if (diff < minDiff) {
+      minDiff = diff;
+      bestIdx = i;
+    }
+  }
+
+  const line1 = words.slice(0, bestIdx + 1).join(" ");
+  const line2 = words.slice(bestIdx + 1).join(" ");
+  return `${line1}\n${line2}`;
+}
+
 const Intro: React.FC<{ video: VideoX }> = ({ video }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -306,7 +332,8 @@ const Intro: React.FC<{ video: VideoX }> = ({ video }) => {
         <div style={{ fontSize: 140, fontWeight: 800, color: WHITE, margin: "20px 0 6px" }}>찬찬이</div>
         <div style={{ fontSize: 48, color: DARK }}>“조금 느려도 괜찮아요”</div>
       </div>
-      <Character src={video.char} size={430} baseTop={1080} motion="인사" entrance animatedSrc={video.animatedChar} />
+      {/* 캐릭터 얼굴/상체가 시원하게 나오도록 위로 대폭 상향 (baseTop: 880) */}
+      <Character src={video.char} size={460} baseTop={880} motion="인사" entrance animatedSrc={video.animatedChar} />
     </AbsoluteFill>
   );
 };
@@ -315,35 +342,32 @@ const Outro: React.FC<{ video: VideoX }> = ({ video }) => {
   const frame = useCurrentFrame();
   const fade = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
   const info = video.info ?? [];
-  const titleText = video.title ?? "";
+  const rawTitle = video.title ?? "";
 
-  // 타이틀 길이에 따른 동적 폰트 크기 조절 (긴 타이틀 지원)
-  let titleFontSize = 72;
-  if (titleText.length > 18) {
-    titleFontSize = 50;
-  } else if (titleText.length > 11) {
-    titleFontSize = 60;
-  }
+  // 2줄 줄바꿈 적용 및 큰 폰트 크기 지정
+  const twoLinesTitle = formatTwoLinesTitle(rawTitle);
+  const titleFontSize = twoLinesTitle.length > 24 ? 78 : 88;
 
   return (
     <AbsoluteFill style={{ fontFamily, alignItems: "center", opacity: fade }}>
-      <div style={{ marginTop: 430, textAlign: "center", width: 940, padding: "0 20px" }}>
+      <div style={{ marginTop: 410, textAlign: "center", width: 940, padding: "0 20px" }}>
         <div
           style={{
             fontSize: titleFontSize,
             fontWeight: 800,
             color: WHITE,
-            lineHeight: 1.25,
+            lineHeight: 1.28,
             wordBreak: "keep-all",
-            textShadow: "0 4px 12px rgba(0,0,0,0.12)",
+            whiteSpace: "pre-line",
+            textShadow: "0 6px 16px rgba(0,0,0,0.14)",
           }}
         >
-          {titleText}
+          {twoLinesTitle}
         </div>
         {info.length > 0 && (
           <div
             style={{
-              marginTop: 48,
+              marginTop: 44,
               background: "rgba(255,255,255,0.92)",
               borderRadius: 28,
               padding: "32px 44px",

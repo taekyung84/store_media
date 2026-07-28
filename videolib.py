@@ -9,14 +9,14 @@ import os, wave, shutil, subprocess, tempfile, asyncio
 import imageio_ffmpeg
 
 FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
-INTRO, OUTRO, GAP = 2.6, 2.6, 0.45
+INTRO, OUTRO, GAP = 2.2, 2.2, 0.35  # 1.2배 빠른 템포에 맞춰 조정
 
 # 목소리 카테고리 → (음성 엔진/이름, rate/option, pitch)
 VOICES = {
-    "여성": ("ko-KR-SunHiNeural", "+0%", "+0Hz"),
-    "남성": ("ko-KR-InJoonNeural", "+0%", "+0Hz"),
-    "여아": ("ko-KR-SunHiNeural", "+12%", "+38Hz"),
-    "남아": ("ko-KR-InJoonNeural", "+14%", "+42Hz"),
+    "여성": ("ko-KR-SunHiNeural", "+15%", "+0Hz"),
+    "남성": ("ko-KR-InJoonNeural", "+15%", "+0Hz"),
+    "여아": ("ko-KR-SunHiNeural", "+25%", "+38Hz"),
+    "남아": ("ko-KR-InJoonNeural", "+25%", "+42Hz"),
     "[Google AI] 찬찬이": ("gemini-Puck", "+0%", "+0Hz"),
     "[Google AI] 느루": ("gemini-Kore", "+0%", "+0Hz"),
 }
@@ -77,14 +77,14 @@ def _gemini_synth(text, out_raw):
 
 
 def _synth_to_wav(text, wav_path, voice_key, work, idx):
-    """문장 → wav. Gemini / edge-tts 우선, 실패 시 macOS say 폴백."""
+    """문장 → wav. Gemini / edge-tts 우선, 실패 시 macOS say 폴백. 1.2배속(atempo=1.2) 적용."""
     voice, rate, pitch = VOICES.get(voice_key, VOICES["여성"])
     raw = os.path.join(work, f"raw_{idx}")
     if voice_key.startswith("[Google AI]"):
         try:
             pcm = raw + ".pcm"
             _gemini_synth(text, pcm)
-            _run([FFMPEG, "-y", "-f", "s16le", "-ar", "24000", "-ac", "1", "-i", pcm, "-ar", "44100", "-ac", "1", wav_path])
+            _run([FFMPEG, "-y", "-f", "s16le", "-ar", "24000", "-ac", "1", "-i", pcm, "-filter:a", "atempo=1.2", "-ar", "44100", "-ac", "1", wav_path])
             return "Google AI (Gemini)"
         except Exception as e:
             print(f"⚠️ Gemini TTS 실패, edge-tts 폴백: {e}")
@@ -92,12 +92,12 @@ def _synth_to_wav(text, wav_path, voice_key, work, idx):
     try:
         mp3 = raw + ".mp3"
         _edge_synth(text, mp3, voice, rate, pitch)
-        _run([FFMPEG, "-y", "-i", mp3, "-ar", "44100", "-ac", "1", wav_path])
+        _run([FFMPEG, "-y", "-i", mp3, "-filter:a", "atempo=1.2", "-ar", "44100", "-ac", "1", wav_path])
         return "edge-tts"
     except Exception:
         aiff = raw + ".aiff"
-        _run(["say", "-v", "Yuna", "-r", "175", "-o", aiff, text])
-        _run([FFMPEG, "-y", "-i", aiff, "-ar", "44100", "-ac", "1", wav_path])
+        _run(["say", "-v", "Yuna", "-r", "210", "-o", aiff, text])
+        _run([FFMPEG, "-y", "-i", aiff, "-filter:a", "atempo=1.2", "-ar", "44100", "-ac", "1", wav_path])
         return "say"
 
 
