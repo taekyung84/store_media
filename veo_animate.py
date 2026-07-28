@@ -9,7 +9,7 @@ MP4 클립으로 변환합니다.
     from veo_animate import animate_character
     mp4_path = animate_character("characters/char_001.png", motion="인사", output_dir="public/animated")
 """
-import os, time, pathlib, shutil
+import os, time, pathlib, shutil, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -287,6 +287,232 @@ def animate_character(
     return out_path
 
 
+# ─────────────────────────────────────────────
+# 장면별 다중 클립 생성 API (v2)
+# ─────────────────────────────────────────────
+
+_VEO_TAG_RE = re.compile(r"\[veo:\s*(.+?)\]", re.IGNORECASE)
+
+
+def parse_veo_tag(line: str) -> tuple[str, str | None]:
+    """대본 라인에서 [veo: ...] 태그를 추출합니다.
+
+    Returns:
+        (순수 대본 텍스트, veo 프롬프트 or None)
+    """
+    m = _VEO_TAG_RE.search(line)
+    if m:
+        clean = _VEO_TAG_RE.sub("", line).strip()
+        return clean, m.group(1).strip()
+    return line.strip(), None
+
+
+def _extract_last_frame(video_path: str, output_path: str) -> str | None:
+    """MP4의 마지막 프레임을 PNG로 추출합니다 (ffmpeg 필요).
+    장면 연속성을 위해 다음 클립의 참조 이미지로 사용합니다."""
+    try:
+        import subprocess
+        # 먼저 영상 길이를 구함
+        probe = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", video_path],
+            capture_output=True, text=True, timeout=10
+        )
+        duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+        if duration <= 0:
+            return None
+        # 마지막 0.5초 지점의 프레임 추출
+        seek_time = max(0, duration - 0.5)
+        subprocess.run(
+            ["ffmpeg", "-y", "-ss", str(seek_time), "-i", video_path,
+             "-frames:v", "1", "-q:v", "2", output_path],
+            capture_output=True, timeout=15
+        )
+        if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+            return output_path
+    except Exception as e:
+        print(f"  ⚠️ 마지막 프레임 추출 실패 (연속성 생략): {e}")
+    return None
+
+
+def animate_scenes(
+    char_image_path: str,
+    lines: list[str],
+    bg_colors: dict = None,
+    output_dir: str = ".",
+    duration_sec: int = 8,
+    timeout_sec: int = 180,
+    max_clips: int = 6,
+) -> list[dict]:
+    """대본 라인별로 개별 Veo AI 클립을 생성합니다.
+
+    각 라인에 [veo: ...] 태그가 있으면 사용자 지정 프롬프트를 사용하고,
+    없으면 Gemini가 내레이션 맥락을 자동 분석하여 동작 프롬프트를 생성합니다.
+    이전 클립의 마지막 프레임을 다음 클립의 참조 이미지로 전달하여 시각적 연속성을 확보합니다.
+
+    Args:
+        char_image_path: 캐릭터 PNG 이미지 절대 경로
+        lines: 대본 라인 리스트 (각 줄이 하나의 장면)
+        bg_colors: 배경 테마 색상 dict {"top": "#hex", "bot": "#hex"}
+        output_dir: 출력 디렉터리
+        duration_sec: 각 클립 길이(초)
+        timeout_sec: API 응답 대기 최대 시간(초)
+        max_clips: 최대 생성 클립 수 (비용 제어)
+
+    Returns:
+        [{"file": "animated/scene_001.mp4", "lineIdx": 0, "prompt": "..."}, ...]
+    """
+    try:
+        from google import genai
+        from google.genai import types
+    except ImportError:
+        raise RuntimeError("google-genai 패키지가 필요합니다. pip install google-genai")
+
+    api_key = os.environ.get("GOOGLE_AI_API_KEY", "")
+    if not api_key:
+        raise RuntimeError("GOOGLE_AI_API_KEY 환경변수가 설정되지 않았습니다.")
+
+    client = genai.Client(api_key=api_key)
+    bg_desc = _bg_prompt_fragment(bg_colors)
+    os.makedirs(output_dir, exist_ok=True)
+
+    # 대본 라인별 프롬프트 준비 (최대 max_clips개)
+    scene_lines = lines[:max_clips]
+    results = []
+    prev_clip_path = None  # 이전 클립 (연속성 참조용)
+
+    for idx, raw_line in enumerate(scene_lines):
+        clean_text, user_prompt = parse_veo_tag(raw_line)
+        if not clean_text:
+            continue
+
+        scene_id = f"scene_{idx:03d}"
+        stamp = time.strftime("%y%m%d%H%M%S")
+
+        # 캐시 확인
+        hex_code = (bg_colors.get("solid") or bg_colors.get("top") or "bed36c").replace("#", "")
+        cache_key = f"cache_{scene_id}_{hex_code}_{hash(clean_text) & 0xFFFFFF:06x}.mp4"
+        cache_path = os.path.join(output_dir, cache_key)
+        if os.path.exists(cache_path) and (time.time() - os.path.getmtime(cache_path) < 86400 * 7):
+            print(f"  ⚡ 장면 {idx+1} 캐시 재사용: {cache_key}")
+            results.append({
+                "file": "animated/" + cache_key,
+                "lineIdx": idx,
+                "prompt": user_prompt or "(cached)",
+            })
+            prev_clip_path = cache_path
+            continue
+
+        # 프롬프트 결정
+        if user_prompt:
+            # 사용자 지정 프롬프트: [veo: ...] 태그 내용을 직접 사용
+            prompt = f"{user_prompt} {bg_desc}. {PROMPT_SUFFIX}"
+            print(f"  🎬 장면 {idx+1}/{len(scene_lines)}: 사용자 지정 프롬프트")
+            print(f"     \"{user_prompt[:80]}...\"" if len(user_prompt) > 80 else f"     \"{user_prompt}\"")
+        else:
+            # Gemini 자동 분석
+            prompt = generate_motion_prompt_from_content(client, clean_text, bg_desc=bg_desc)
+            print(f"  🧠 장면 {idx+1}/{len(scene_lines)}: Gemini 자동 분석 프롬프트")
+
+        # 참조 이미지 결정: 이전 클립의 마지막 프레임 또는 원본 캐릭터
+        ref_image_path = char_image_path
+        if prev_clip_path:
+            last_frame_path = os.path.join(output_dir, f"_ref_frame_{idx}.png")
+            extracted = _extract_last_frame(prev_clip_path, last_frame_path)
+            if extracted:
+                ref_image_path = extracted
+                print(f"     🔗 이전 장면 마지막 프레임을 참조로 사용 (연속성)")
+
+        # 이미지 로드
+        with open(ref_image_path, "rb") as f:
+            image_bytes = f.read()
+
+        image = types.Image(image_bytes=image_bytes, mime_type="image/png")
+
+        # Veo API 호출
+        print(f"  🤖 장면 {idx+1} Veo API 호출 중...")
+        try:
+            operation = client.models.generate_videos(
+                model="veo-3.1-generate-preview",
+                prompt=prompt,
+                image=image,
+                config=types.GenerateVideosConfig(
+                    aspect_ratio="9:16",
+                    number_of_videos=1,
+                ),
+            )
+        except Exception as e:
+            print(f"  ⚠️ 장면 {idx+1} Veo API 요청 실패: {e}")
+            continue
+
+        # 완료 대기
+        start = time.time()
+        while not operation.done:
+            elapsed = time.time() - start
+            if elapsed > timeout_sec:
+                print(f"  ⚠️ 장면 {idx+1} 타임아웃 ({timeout_sec}초 초과). 건너뜀.")
+                break
+            print(f"     ... 장면 {idx+1}: {int(elapsed)}초 경과", end="\r")
+            time.sleep(10)
+            try:
+                operation = client.operations.get(operation)
+            except Exception as e:
+                print(f"  ⚠️ 장면 {idx+1} 상태 확인 실패: {e}")
+                break
+
+        if not operation.done or not operation.response or not operation.response.generated_videos:
+            print(f"  ⚠️ 장면 {idx+1} 영상 생성 실패. 건너뜀.")
+            continue
+
+        # 저장
+        out_name = f"{scene_id}_{stamp}.mp4"
+        out_path = os.path.join(output_dir, out_name)
+
+        generated_video = operation.response.generated_videos[0]
+        try:
+            client.files.download(file=generated_video.video)
+            generated_video.video.save(out_path)
+        except AttributeError:
+            try:
+                with open(out_path, "wb") as f:
+                    f.write(generated_video.video.video_bytes)
+            except Exception:
+                video_data = generated_video.video
+                if hasattr(video_data, "read"):
+                    with open(out_path, "wb") as f:
+                        f.write(video_data.read())
+                else:
+                    print(f"  ⚠️ 장면 {idx+1} 저장 실패. 건너뜀.")
+                    continue
+
+        elapsed_total = round(time.time() - start, 1)
+        print(f"  ✅ 장면 {idx+1} AI 클립 완료! ({elapsed_total}초)")
+
+        # 캐시 복사
+        try:
+            shutil.copy(out_path, cache_path)
+        except Exception:
+            pass
+
+        results.append({
+            "file": "animated/" + out_name,
+            "lineIdx": idx,
+            "prompt": user_prompt or "(auto)",
+        })
+        prev_clip_path = out_path
+
+        # 임시 참조 프레임 정리
+        ref_frame = os.path.join(output_dir, f"_ref_frame_{idx}.png")
+        if os.path.exists(ref_frame):
+            try:
+                os.remove(ref_frame)
+            except Exception:
+                pass
+
+    print(f"  🎬 총 {len(results)}개 장면 AI 클립 생성 완료")
+    return results
+
+
 if __name__ == "__main__":
     # 단독 테스트
     import sys
@@ -297,3 +523,4 @@ if __name__ == "__main__":
     out = os.path.join(os.path.dirname(HERE), "my-video", "public", "animated")
     result = animate_character(img, motion=motion, output_dir=out)
     print(f"\n결과: {result}")
+

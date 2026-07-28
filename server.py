@@ -269,25 +269,27 @@ def render_video(p):
     else:
         bg = THEMES.get(p.get("theme", "연두"), THEMES["연두"])
 
-    # AI 움직임 (Veo) 옵션 처리
+    # AI 움직임 (Veo) 옵션 처리 — 장면별 다중 클립 생성
     animated_char = None
+    animated_scenes = []
     use_ai = p.get("useAiMotion", False)
     if use_ai:
         try:
-            print("  🤖 Veo AI 캐릭터 비디오 생성 시작...")
+            print("  🤖 Veo AI 장면별 캐릭터 비디오 생성 시작...")
             char_abs = os.path.join(PUB, char)
             anim_dir = os.path.join(PUB, "animated")
-            motion_type = p.get("motion", "기본")
-            lines_str = "\n".join(lines)
-            anim_path = veo_animate.animate_character(
-                char_abs, motion=motion_type, lines_text=lines_str,
-                bg_colors=bg, output_dir=anim_dir
+            animated_scenes = veo_animate.animate_scenes(
+                char_abs, lines=lines, bg_colors=bg,
+                output_dir=anim_dir
             )
-            animated_char = "animated/" + os.path.basename(anim_path)
-            print(f"  🤖 AI 캐릭터 영상 준비 완료: {animated_char}")
+            # 하위호환: 첫 번째 클립을 animatedChar로도 설정
+            if animated_scenes:
+                animated_char = animated_scenes[0]["file"]
+                print(f"  🤖 AI 장면별 영상 준비 완료: {len(animated_scenes)}개 클립")
         except Exception as e:
             print(f"  ⚠️ AI 움직임 생성 실패, CSS 모션으로 자동 전환: {e}")
             animated_char = None
+            animated_scenes = []
 
     video = {
         "id": audio_id, "title": p.get("title") or f"{store['name']} 안내",
@@ -298,6 +300,8 @@ def render_video(p):
     }
     if animated_char:
         video["animatedChar"] = animated_char
+    if animated_scenes:
+        video["animatedScenes"] = animated_scenes
 
     os.makedirs(OUT, exist_ok=True)
     propsf = os.path.join(PROJ, f".props_{audio_id}.json")
@@ -1135,11 +1139,13 @@ footer {
         <input type="checkbox" id="useAiMotion">
         <label for="useAiMotion">
           <div class="ai-option-header">
-            AI 내용 기반 자동 움직임 (Veo)
+            AI 장면별 자동 영상 생성 (Veo 3.1)
             <span class="badge badge--paid">선택 시 유료</span>
           </div>
           <span class="desc">
-            • <strong>체크 시</strong>: Gemini가 내레이션 맥락을 분석하여 최적의 캐릭터 모션을 AI 영상으로 자동 생성합니다.<br>
+            • <strong>체크 시</strong>: 대본 각 줄마다 개별 AI 영상 클립을 생성합니다. 장면 간 자동 크로스페이드로 매끄럽게 연결됩니다.<br>
+            • <strong>프롬프트 직접 지정</strong>: 대본 줄 끝에 <code>[veo: 영어 프롬프트]</code> 태그를 추가하면 해당 장면의 영상이 지정된 프롬프트로 생성됩니다.<br>
+            &nbsp;&nbsp;예: <code>찬찬이가 인사해요 [veo: The cute character waves hello cheerfully while holding a book]</code><br>
             • <strong>체크 해제 시</strong>: 선택한 프리셋 동작으로 100% 무료 렌더링됩니다. <span class="badge badge--free">무료</span><br>
             • <em>동일 조건 영상은 스마트 캐시가 적용되어 재발행 시 추가 생성비 없이 10초 내 완료됩니다.</em>
           </span>

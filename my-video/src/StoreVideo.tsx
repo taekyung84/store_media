@@ -15,11 +15,12 @@ import type { Video, Caption, Info } from "./data";
 const fontFamily = "-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif";
 
 // 웹앱에서 추가로 넘어올 수 있는 선택 필드
-// 웹앱에서 추가로 넘어올 수 있는 선택 필드
+type AnimatedScene = { file: string; lineIdx: number; prompt?: string };
 type VideoX = Video & {
   bg?: { top: string; bot: string; solid?: string };
   motion?: string; // 기본 / 인사 / 댄스 / 걷기 / 두리번 / 통통 / 없음
-  animatedChar?: string; // Veo AI 생성 캐릭터 영상 경로
+  animatedChar?: string; // Veo AI 생성 캐릭터 영상 경로 (하위호환)
+  animatedScenes?: AnimatedScene[]; // 장면별 AI 클립 배열 (v2)
   useBgm?: boolean;
 };
 
@@ -145,6 +146,105 @@ const Character: React.FC<{
   );
 };
 
+// ─── 장면별 AI 클립 전환 컴포넌트 (크로스페이드) ───
+const ScenePlayer: React.FC<{
+  scenes: AnimatedScene[];
+  captions: Caption[];
+  size: number;
+  baseTop: number;
+  fallbackSrc: string;
+  fallbackMotion?: string;
+}> = ({ scenes, captions, size, baseTop, fallbackSrc, fallbackMotion }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const currentMs = (frame / fps) * 1000;
+  const FADE_FRAMES = Math.round(fps * 0.5); // 0.5초 크로스페이드
+
+  // 현재 프레임이 어느 캡션(장면)에 해당하는지 결정
+  let activeLineIdx = -1;
+  for (let i = 0; i < captions.length; i++) {
+    if (currentMs >= captions[i].fromMs && currentMs < captions[i].toMs) {
+      activeLineIdx = i;
+      break;
+    }
+  }
+
+  // 활성 장면에 매칭되는 AI 클립 찾기
+  const activeScene = scenes.find((s) => s.lineIdx === activeLineIdx);
+  // 이전 장면 (크로스페이드 아웃용)
+  const prevLineIdx = activeLineIdx > 0 ? activeLineIdx - 1 : -1;
+  const prevScene = scenes.find((s) => s.lineIdx === prevLineIdx);
+
+  // 크로스페이드 진행률 계산
+  let fadeProgress = 1; // 1 = 완전히 새 장면
+  if (activeLineIdx >= 0 && activeLineIdx < captions.length) {
+    const captionStartFrame = Math.round((captions[activeLineIdx].fromMs / 1000) * fps);
+    const framesSinceStart = frame - captionStartFrame;
+    if (framesSinceStart < FADE_FRAMES && framesSinceStart >= 0) {
+      fadeProgress = interpolate(framesSinceStart, [0, FADE_FRAMES], [0, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      });
+    }
+  }
+
+  // AI 클립이 없으면 CSS 모션 폴백
+  if (!activeScene && !prevScene) {
+    const t = frame / fps;
+    const m = getMotion(fallbackMotion ?? "기본", t);
+    return (
+      <Img
+        src={staticFile(fallbackSrc)}
+        style={{
+          position: "absolute",
+          width: size,
+          left: "50%",
+          top: baseTop,
+          transform: `translateX(-50%) translate(${m.x}px, ${m.y}px) rotate(${m.rot}deg) scale(${m.sx}, ${m.sy})`,
+          transformOrigin: "center bottom",
+          filter: "drop-shadow(0 16px 22px rgba(0,0,0,0.13))",
+        }}
+      />
+    );
+  }
+
+  const videoStyle = (opacity: number) => ({
+    position: "absolute" as const,
+    width: size * 1.1,
+    left: "50%",
+    top: baseTop - 20,
+    transform: "translateX(-50%)",
+    transformOrigin: "center bottom",
+    filter: "drop-shadow(0 14px 20px rgba(0,0,0,0.1))",
+    objectFit: "contain" as const,
+    opacity,
+    transition: "opacity 0.3s ease",
+  });
+
+  return (
+    <>
+      {/* 이전 장면 (크로스페이드 아웃) */}
+      {prevScene && fadeProgress < 1 && (
+        <OffthreadVideo
+          src={staticFile(prevScene.file)}
+          style={videoStyle(1 - fadeProgress)}
+          loop
+          muted
+        />
+      )}
+      {/* 현재 활성 장면 (크로스페이드 인) */}
+      {activeScene && (
+        <OffthreadVideo
+          src={staticFile(activeScene.file)}
+          style={videoStyle(fadeProgress)}
+          loop
+          muted
+        />
+      )}
+    </>
+  );
+};
+
 const Badge: React.FC<{ label: string }> = ({ label }) => (
   <div
     style={{
@@ -254,7 +354,19 @@ const Body: React.FC<{ video: VideoX }> = ({ video }) => (
         교보문고 {video.storeName}
       </div>
     </div>
-    <Character src={video.char} size={540} baseTop={440} motion={video.motion} animatedSrc={video.animatedChar} />
+    {/* 장면별 AI 클립이 있으면 ScenePlayer, 없으면 기존 Character */}
+    {video.animatedScenes && video.animatedScenes.length > 0 ? (
+      <ScenePlayer
+        scenes={video.animatedScenes}
+        captions={video.captions}
+        size={540}
+        baseTop={440}
+        fallbackSrc={video.char}
+        fallbackMotion={video.motion}
+      />
+    ) : (
+      <Character src={video.char} size={540} baseTop={440} motion={video.motion} animatedSrc={video.animatedChar} />
+    )}
   </AbsoluteFill>
 );
 
