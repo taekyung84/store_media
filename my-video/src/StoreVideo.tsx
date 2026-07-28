@@ -245,21 +245,36 @@ const ScenePlayer: React.FC<{
   );
 };
 
-const Badge: React.FC<{ label: string }> = ({ label }) => (
-  <div
-    style={{
-      display: "inline-block",
-      background: ORANGE,
-      color: WHITE,
-      fontSize: 38,
-      fontWeight: 700,
-      padding: "10px 34px",
-      borderRadius: 999,
-    }}
-  >
-    {label}
-  </div>
-);
+// 배경색이 주황색 계열인지 확인하여 뱃지 색상이 겹치지 않게 스마트 대응
+function getBadgeBgColor(solidColor?: string): string {
+  if (!solidColor) return ORANGE;
+  const hex = solidColor.replace("#", "").toLowerCase();
+  // 주황색 계열 (F17829, FFD9B8, F3A368, 또는 R값이 높은 주황 톤)
+  if (hex.startsWith("f17") || hex.startsWith("ffd") || hex.startsWith("f3a") || hex.startsWith("f178") || hex.startsWith("ff")) {
+    return "#003477"; // 교보 딥 네이비로 반전 대응하여 겹침 방지
+  }
+  return ORANGE;
+}
+
+const Badge: React.FC<{ label: string; bgColor?: string }> = ({ label, bgColor }) => {
+  const bg = getBadgeBgColor(bgColor);
+  return (
+    <div
+      style={{
+        display: "inline-block",
+        background: bg,
+        color: WHITE,
+        fontSize: 38,
+        fontWeight: 700,
+        padding: "10px 34px",
+        borderRadius: 999,
+        boxShadow: "0 6px 18px rgba(0,0,0,0.18)",
+      }}
+    >
+      {label}
+    </div>
+  );
+};
 
 const CaptionBar: React.FC<{ text: string }> = ({ text }) => {
   const frame = useCurrentFrame();
@@ -322,15 +337,28 @@ const Intro: React.FC<{ video: VideoX }> = ({ video }) => {
   const { fps } = useVideoConfig();
   const s = spring({ frame, fps, config: { damping: 200 }, durationInFrames: 25 });
   const y = interpolate(s, [0, 1], [40, 0]);
+  const solidColor = video.bg?.solid || video.bg?.top;
+
   return (
     <AbsoluteFill style={{ fontFamily, alignItems: "center" }}>
       <div style={{ marginTop: 410, opacity: s, transform: `translateY(${y}px)`, textAlign: "center" }}>
-        <div style={{ fontSize: 40, color: DARK, opacity: 0.7, marginBottom: 24 }}>
+        <div style={{ fontSize: 40, color: DARK, opacity: 0.85, marginBottom: 24, fontWeight: 500 }}>
           교보문고 {video.storeName}
         </div>
-        <Badge label={`${video.type} 안내`} />
-        <div style={{ fontSize: 140, fontWeight: 800, color: WHITE, margin: "20px 0 6px" }}>찬찬이</div>
-        <div style={{ fontSize: 48, color: DARK }}>“조금 느려도 괜찮아요”</div>
+        <Badge label={`${video.type} 안내`} bgColor={solidColor} />
+        {/* 밝은 배경에서 또렷하게 잘 보이도록 강력 드롭 쉐도우 적용 */}
+        <div
+          style={{
+            fontSize: 140,
+            fontWeight: 800,
+            color: WHITE,
+            margin: "20px 0 6px",
+            textShadow: "0 6px 20px rgba(0,0,0,0.32), 0 2px 6px rgba(0,0,0,0.2)",
+          }}
+        >
+          찬찬이
+        </div>
+        <div style={{ fontSize: 48, color: DARK, fontWeight: 700 }}>“조금 느려도 괜찮아요”</div>
       </div>
       {/* 캐릭터 얼굴/상체가 시원하게 나오도록 위로 대폭 상향 (baseTop: 880) */}
       <Character src={video.char} size={460} baseTop={880} motion="인사" entrance animatedSrc={video.animatedChar} />
@@ -352,6 +380,7 @@ const Outro: React.FC<{ video: VideoX }> = ({ video }) => {
     <AbsoluteFill style={{ fontFamily, alignItems: "center", opacity: fade }}>
       {/* 상단으로 위치 이동 (marginTop: 280px) */}
       <div style={{ marginTop: 280, textAlign: "center", width: 940, padding: "0 20px" }}>
+        {/* 밝은 배경에서도 글자가 선명하게 읽히도록 선명한 드롭 쉐도우 적용 */}
         <div
           style={{
             fontSize: titleFontSize,
@@ -360,7 +389,7 @@ const Outro: React.FC<{ video: VideoX }> = ({ video }) => {
             lineHeight: 1.28,
             wordBreak: "keep-all",
             whiteSpace: "pre-line",
-            textShadow: "0 6px 16px rgba(0,0,0,0.14)",
+            textShadow: "0 6px 22px rgba(0,0,0,0.38), 0 2px 8px rgba(0,0,0,0.22)",
           }}
         >
           {twoLinesTitle}
@@ -374,7 +403,7 @@ const Outro: React.FC<{ video: VideoX }> = ({ video }) => {
               padding: "28px 40px",
               display: "inline-block",
               minWidth: 620,
-              boxShadow: "0 10px 28px rgba(0,0,0,0.1)",
+              boxShadow: "0 10px 28px rgba(0,0,0,0.12)",
             }}
           >
             {info.map((it: Info, i: number) => (
@@ -392,29 +421,40 @@ const Outro: React.FC<{ video: VideoX }> = ({ video }) => {
   );
 };
 
-const Body: React.FC<{ video: VideoX }> = ({ video }) => (
-  <AbsoluteFill style={{ fontFamily }}>
-    <div style={{ position: "absolute", top: 100, width: "100%", textAlign: "center" }}>
-      <Badge label={video.type} />
-      <div style={{ fontSize: 46, fontWeight: 700, color: WHITE, marginTop: 18 }}>
-        교보문고 {video.storeName}
+const Body: React.FC<{ video: VideoX }> = ({ video }) => {
+  const solidColor = video.bg?.solid || video.bg?.top;
+  return (
+    <AbsoluteFill style={{ fontFamily }}>
+      <div style={{ position: "absolute", top: 100, width: "100%", textAlign: "center" }}>
+        <Badge label={video.type} bgColor={solidColor} />
+        <div
+          style={{
+            fontSize: 46,
+            fontWeight: 700,
+            color: WHITE,
+            marginTop: 18,
+            textShadow: "0 4px 14px rgba(0,0,0,0.32)",
+          }}
+        >
+          교보문고 {video.storeName}
+        </div>
       </div>
-    </div>
-    {/* 장면별 AI 클립이 있으면 ScenePlayer, 없으면 기존 Character */}
-    {video.animatedScenes && video.animatedScenes.length > 0 ? (
-      <ScenePlayer
-        scenes={video.animatedScenes}
-        captions={video.captions}
-        size={520}
-        baseTop={420}
-        fallbackSrc={video.char}
-        fallbackMotion={video.motion}
-      />
-    ) : (
-      <Character src={video.char} size={520} baseTop={420} motion={video.motion} animatedSrc={video.animatedChar} />
-    )}
-  </AbsoluteFill>
-);
+      {/* 장면별 AI 클립이 있으면 ScenePlayer, 없으면 기존 Character */}
+      {video.animatedScenes && video.animatedScenes.length > 0 ? (
+        <ScenePlayer
+          scenes={video.animatedScenes}
+          captions={video.captions}
+          size={520}
+          baseTop={420}
+          fallbackSrc={video.char}
+          fallbackMotion={video.motion}
+        />
+      ) : (
+        <Character src={video.char} size={520} baseTop={420} motion={video.motion} animatedSrc={video.animatedChar} />
+      )}
+    </AbsoluteFill>
+  );
+};
 
 export const VideoComp: React.FC<{ video: VideoX }> = ({ video }) => {
   const { fps } = useVideoConfig();
